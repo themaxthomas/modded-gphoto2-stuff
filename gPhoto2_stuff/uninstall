@@ -1,0 +1,27 @@
+#!/bin/bash
+clear
+press_enter()
+{
+    echo -en "\nPress Enter to continue"
+    read
+    clear
+}
+
+restart()
+{
+	reboot
+}
+
+
+echo This will remove all gphoto2 related packages and configurations. It needs to be run as ROOT.
+echo ""
+press_enter
+apt purge gphoto2 ffmpeg vlc v4l2loopback-utils v4l2loopback-dkms mencoder -y
+apt autoremove -y
+cat /etc/modules-orig > /etc/modules
+rm /etc/modules-orig
+rm /etc/modprobe.d/dslr-webcam.conf
+clear
+echo Uninstall complete. System restart required
+press_enter
+restart

@@ -1,0 +1,62 @@
+#!/bin/bash
+
+#source orig.timelapse.config
+
+cat orig.timelapse.config > timelapse.config
+
+#cat timelapse.config >> orig.timelapse.config
+source timelapse.config
+echo "TLDIR=$(echo "$PROJDIR")" >> timelapse.config
+
+if [ -d "$WORKDIR" ]; then
+  cd $WORKDIR
+else
+  mkdir $WORKDIR 
+  cd $WORKDIR
+fi
+
+echo Use defaults? [Y/n]
+read DEFAULTS
+mkdir $PROJDIR
+cd $PROJDIR
+if [ $DEFAULTS == 'y' ]
+then
+  #source timelapse.config
+  #mkdir $PROJDIR
+  #cd $PROJDIR
+  clear
+  sleep 1
+  #set -x
+  gphoto2 --capture-image-and-download -F $FRAMES  -I $INTER -f $PROJDIR
+  #set +x
+else
+  #echo Enter full path of project directory.
+  #read PROJDIR
+  echo
+  echo How many frames?
+  read FRAMES
+  echo
+  echo Seconds between frames? 
+  echo
+  echo Note: needs 4-5 seconds to process image.
+  read INTER
+  clear
+  sleep 1
+  TLDIR=$(echo $PROJDIR)
+  gphoto2 --capture-image-and-download -F $FRAMES  -I $INTER -f $PROJDIR
+fi
+#TLDIR=$(echo $PROJDIR)
+touch "last_timelapse.config"
+echo "TLDIR=$(echo "$PROJDIR")" > last_timelapse.config
+cat last_timelapse.config
+sleep 5
+#NOW=$(date +"%m.%d.%Y_%H:%M:%S")
+#DIR=$(echo $NOW)_timelapse
+#mkdir $NEWDIR
+#cd $DIR
+#FOLDER=/home/pi/timelapse_photos/$DIR
+clear
+
+
+
+#gphoto2 --capture-image-and-download -F $FRAMES  -I $INTER -f $PROJDIR
