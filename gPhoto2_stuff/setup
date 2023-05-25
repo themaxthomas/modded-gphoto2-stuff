@@ -8,10 +8,21 @@ press_enter()
     clear
 }
 
+find_os()
+{
+	. /etc/os-release
+	case $ID in
+		debian|ubuntu) OSPKGMAN=apt ;;
+		fedora) OSPKGMAN=dnf ;;
+	esac
+}
+
 install()
 {
 	clear
-	apt-get install gphoto2 ffmpeg vlc v4l2loopback-utils v4l2loopback-dkms -y
+	find_os
+	$OSPKGMAN install gphoto2 ffmpeg vlc v4l2loopback-utils v4l2loopback-dkms mencoder -y
+	$OSPKGMAN install kernel-headers || $OSPKGMAN install raspberrypi-kernel-headers
 	echo ""
 	press_enter
 	config_menu
@@ -30,6 +41,58 @@ configure()
 	press_enter
 	restart
 }
+
+restart()
+{
+	 reboot
+}
+
+install_menu()
+{
+	clear
+	clear
+
+	until [ "$selection" = "n" ]; do
+		echo This needs to be run as ROOT
+		echo ""
+		echo "This will install the following packages and their dependencies:
+	gphoto2
+	ffmpeg
+	vlc
+	v4l2loopback
+	mencoder
+		
+	It will also install the  appropriate kernel headers for your system.
+	"
+		echo -n "Would you like to continue? [Y/n] "
+		read selection
+		echo ""
+		case $selection in
+			y|Y|"") install ; press_enter ;;
+			n|N) exit ; clear ;;
+			*) echo "Please enter 'y' or 'n'" ; press_enter
+		esac
+	done
+}
+
+config_menu()
+{
+	clear
+	until [ "$selection" = "n" ]; do
+		echo "Now we will configure the v4l2loopback module to be loaded at each boot
+	"
+		echo -n "Would you like to continue? [Y/n] "
+		read selection
+		echo ""
+		case $selection in
+			y|Y|"") configure ; press_enter ;;
+			n|N) exit ; clear ;;
+			*) echo "Please enter 'y' or 'n'" ; press_enter
+		esac
+	done
+}
+
+install_menu
 
 restart()
 {
